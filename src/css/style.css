@@ -1,0 +1,200 @@
+* {
+    margin: 0;
+    padding: 0;
+    /* border: 0.1px solid rgb(221, 174, 174); */
+    box-sizing: border-box;
+    list-style: none;
+    text-decoration: none;
+}
+body {
+    margin: 30px;
+    font-size: 15px;
+    font-family: "Roboto", sans-serif;
+    font-weight: 600;
+    border: 3px solid rgb(60, 88, 141);
+}
+hr {
+    background-color: rgb(31, 169, 187);
+    height: 3px;
+    margin: 0 10px 0 10px;
+}
+
+/* 로그인 */
+.login-wrapper {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+input::placeholder {
+    font-size: large;
+    text-align: center;
+}
+#login-form {
+    width: 300px;
+    border: 2px solid #306d9e;
+    padding: 20px;
+    border-radius: 20px;
+}
+#login-form > input {
+    width: 100%;
+    height: 55px;
+    padding: 0 20px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    background-color: #f8f8f8;
+    border: 2px solid #7f9fb9;
+}
+#login-form > input[type="submit"] {
+    color: #fff;
+    font-size: large;
+    background-color: #306d9e;
+}
+
+/* 헤더 */
+.nav > li {
+    margin: 5px;
+    font-size: 25px;
+    font-weight: bold;
+}
+.nav {
+    display: flex;
+    justify-content: flex-end;
+    margin: 25px;
+    cursor: pointer;
+}
+.container {
+    height: 500px;
+}
+
+/* Rooms_메인 */
+.room-container {
+    display: flex;
+    justify-content: space-between;
+    border: 3px solid rgb(60, 88, 141);
+    margin: 20px 30px 20px 30px;
+}
+.room-container > div {
+    padding: 10px;
+}
+.people {
+    width: 20%;
+    margin-left: 10px;
+}
+.room-number {
+    width: 40%;
+}
+.enter {
+    width: 40%;
+    text-align: center;
+}
+
+/* Rooms_상세 */
+.rooms-detail {
+    display: flex;
+    justify-content: space-between;
+    height: 300px;
+}
+.chat-room {
+    width: 70%;
+    padding: 20px 0 20px 20px;
+}
+.chat-member {
+    width: 30%;
+    padding: 20px;
+}
+.chatline {
+    margin: 0;
+}
+.chat,
+.member {
+    padding: 10px;
+    height: 80%;
+    border: 3px solid rgb(60, 88, 141);
+}
+.chat-input,
+.exit {
+    margin-top: 10px;
+    height: 20%;
+    border: 3px solid rgb(60, 88, 141);
+}
+
+/* Users_메인 */
+.user {
+    display: flex;
+    justify-content: space-between;
+    border: 3px solid rgb(60, 88, 141);
+    margin: 20px 30px 20px 30px;
+}
+.user > div {
+    padding: 10px;
+}
+.username {
+    width: 20%;
+    margin-left: 10px;
+}
+.signup-date {
+    width: 30%;
+}
+.friend-num {
+    width: 20%;
+    text-align: center;
+}
+.friend-requests {
+    width: 20%;
+    text-align: center;
+}
+
+/* Friends_메인 */
+.nav2 {
+    text-align: center;
+    padding: 20px;
+}
+.nav2 > span {
+    margin: 150px;
+    /* background-color: yellow; */
+    width: 100px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+#navline {
+    margin: 0 20px 0 20px;
+}
+.friend {
+    display: flex;
+    justify-content: space-between;
+    border: 3px solid rgb(60, 88, 141);
+    margin: 20px 30px 20px 30px;
+}
+.friend > div {
+    padding: 10px;
+}
+.accept {
+    width: 20%;
+    text-align: center;
+}
+.reject {
+    width: 20%;
+    text-align: center;
+}
+.friend-delete {
+    width: 20%;
+    text-align: center;
+}
+.direct-message {
+    width: 20%;
+    text-align: center;
+}
+
+/* DM_상세 */
+.DM {
+    height: 400px;
+    text-align: center;
+    margin: 20px 350px 20px 350px;
+}
+.DM-chat {
+    text-align: start;
+    padding: 20px;
+}
