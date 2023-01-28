@@ -9,36 +9,29 @@
     </head>
     <body>
         <div class="container">
-            <ul class="nav">
-                <li id="Rooms">Rooms</li>
-                <li id="Users">Users</li>
-                <li id="Friends">Friends</li>
-                <li id="Logout">Logout</li>
-            </ul>
+            <div class="header">
+                <ul class="nav">
+                    <li id="Rooms">Rooms</li>
+                    <li id="Users">Users</li>
+                    <li id="Friends">Friends</li>
+                    <li id="Logout">Logout</li>
+                </ul>
+            </div>
+
             <hr />
 
             <!-- Rooms_메인 -->
             <div class="rooms-main">
                 <div class="wrap">
                     <div class="login-wrapper">
-                        <form id="login-form">
+                        <div id="login-form">
                             <input type="text" id="id" name="id" placeholder="ID" />
                             <input type="password" id="password" name="password" placeholder="Password" />
-                            <input type="submit" id="sign-in" value="Sign in" />
-                            <input type="submit" id="sign-up" value="Sign up" />
-                        </form>
+                            <button id="sign-in">Sign in</button>
+                            <button id="sign-up">Sign up</button>
+                        </div>
                     </div>
                 </div>
-                <!-- <div class="room-container">
-                    <div class="people">참여인원 수 : 3</div>
-                    <div class="room-number">방 번호 : 1</div>
-                    <div class="enter">입장</div>
-                </div>
-                <div class="room-container">
-                    <div class="people">참여인원 수 : 3</div>
-                    <div class="room-number">방 번호 : 1</div>
-                    <div class="enter">입장</div>
-                </div> -->
             </div>
             <br />
 
@@ -146,5 +139,6 @@
             </div> -->
         </div>
     </body>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="main.js"></script>
 </html>

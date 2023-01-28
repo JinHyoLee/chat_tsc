@@ -18,6 +18,9 @@ hr {
     height: 3px;
     margin: 0 10px 0 10px;
 }
+.header {
+    display: none;
+}
 
 /* 로그인 */
 .login-wrapper {
@@ -37,7 +40,8 @@ input::placeholder {
     padding: 20px;
     border-radius: 20px;
 }
-#login-form > input {
+#login-form > input,
+button {
     width: 100%;
     height: 55px;
     padding: 0 20px;
@@ -47,7 +51,7 @@ input::placeholder {
     background-color: #f8f8f8;
     border: 2px solid #7f9fb9;
 }
-#login-form > input[type="submit"] {
+#login-form > button {
     color: #fff;
     font-size: large;
     background-color: #306d9e;
