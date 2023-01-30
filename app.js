@@ -26,6 +26,17 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "src")));
 const PORT = process.env.PORT || 5000;
 
+let roomData = [
+    {
+        members: [],
+        id: "1",
+    },
+    {
+        members: [],
+        id: "2",
+    },
+];
+
 // 로그인
 app.post("/login", (req, res) => {
     console.log(req.body);
@@ -69,16 +80,7 @@ app.post("/signUp", (req, res) => {
 });
 
 app.get("/api/rooms", (req, res) => {
-    res.json([
-        {
-            members: ["tony", "sam"],
-            id: "1",
-        },
-        {
-            members: [],
-            id: "2",
-        },
-    ]);
+    res.json(roomData);
 });
 
 // io.on("connection", (socket) => {
@@ -97,17 +99,24 @@ io.on("connection", (socket) => {
         console.log(`data: ${data.name} ${data.msg},  room: ${room}`);
         socket.to(room).emit("chatting", data);
     });
+
     socket.on("disconnect", () => {
         console.log("user disconnected");
     });
+
+    // 방 입장
     socket.on("join-room", (id, room) => {
+        roomData[room - 1].members.push(id);
         console.log(`${id} join room ${room}`);
         socket.join(room);
         socket.to(room).emit("chatting", {
             name: id,
             msg: "님이 입장",
         });
+
+        socket.to(room).emit("newmember-join", id, roomData);
     });
+
     socket.on("disconnecting", () => {
         socket.rooms.forEach((room) =>
             socket.to(room).emit({
@@ -116,12 +125,19 @@ io.on("connection", (socket) => {
             })
         );
     });
+
+    // 방 퇴장
     socket.on("leave-room", (id, room) => {
+        roomData[room - 1].members = roomData[room - 1].members.filter((element) => element !== id);
+
         console.log(`${id} leave rooom ${room}`);
         socket.to(room).emit("chatting", {
             name: id,
             msg: "님이 퇴장",
         });
+
+        socket.to(room).emit("newmember-join", id, roomData);
+
         socket.leave(room);
     });
 });

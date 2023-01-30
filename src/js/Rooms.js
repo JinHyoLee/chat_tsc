@@ -38,11 +38,14 @@ function makeCurrentMember(id, roomData) {
     const currentMemberName = document.querySelector(".current-membername");
     const foundElement = roomData.find((element) => element.id === id);
     // console.log(foundElement);
-    foundElement.members.forEach((member) => {
-        const user = document.createElement(`li`);
-        user.innerHTML = member;
-        currentMemberName.appendChild(user);
-    });
+    currentMemberName.innerHTML = ""; // 참여 목록 초기화
+    if (foundElement.members.length > 0) {
+        foundElement.members.forEach((member) => {
+            const user = document.createElement(`li`);
+            user.innerHTML = member;
+            currentMemberName.appendChild(user);
+        });
+    }
     currentMember.innerHTML = foundElement.members.length;
     roomNumber.innerHTML = id;
 }
@@ -122,6 +125,7 @@ function send(id, roomNumber) {
     chatInput.value = "";
 }
 
+// 채팅
 socket.on("chatting", (data) => {
     const chat = document.querySelector(".chat");
 
@@ -130,6 +134,11 @@ socket.on("chatting", (data) => {
     const item = new LiModel(name, msg); // LiModel 인스턴스화
     item.makeLi();
     chat.scrollTo(0, chat.scrollHeight);
+});
+
+// 채팅방 내 유저목록
+socket.on("newmember-join", (id, roomData) => {
+    makeCurrentMember(id, roomData);
 });
 
 function LiModel(name, msg) {
