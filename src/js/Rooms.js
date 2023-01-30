@@ -1,6 +1,8 @@
 import { getLoginId } from "./Login.js";
 
 const socket = io();
+let loginId;
+let serverRoomNumber;
 
 // enter눌렀을 때 메세지 보내기
 function sendEnter(id, roomNumber) {
@@ -22,7 +24,7 @@ async function roomPeople() {
             }
         })
         .then((text) => {
-            console.log(text);
+            // console.log(text);
             data = text;
         });
     return data;
@@ -52,39 +54,51 @@ function makeRoom(element) {
 
 // 채팅방 입장
 export async function roomEnter() {
-    const roomsDetail = document.querySelector(".rooms-detail");
+    const roomDetail = document.querySelector(".rooms-detail");
+    const chatInput = document.querySelector(".chat-input");
+    const roomExit = document.querySelector(".exit");
+    const currentMemberName = document.querySelector(".current-membername");
+    const roomMain = document.querySelector(".rooms-main");
+    const chatList = document.querySelector(".chatting-list");
 
-    roomsDetail.style.display = "none"; // Rooms클릭시 채팅방 안보이기
+    chatInput.addEventListener("keypress", (e) => {
+        if (e.keyCode === 13) {
+            send(loginId, serverRoomNumber);
+        }
+    });
+
+    // 채팅방 나가기
+    roomExit.addEventListener("click", async (e) => {
+        socket.emit("leave-room", loginId, serverRoomNumber);
+        roomMain.style.display = "block";
+        roomDetail.style.display = "none";
+        currentMemberName.innerHTML = "";
+        chatList.innerHTML = "";
+        currentMemberName.innerHTML = "";
+    });
+
+    roomDetail.style.display = "none"; // Rooms클릭시 채팅방 안보이기
     const roomData = await roomPeople();
     roomData.forEach((element) => {
         makeRoom(element);
     });
     const enters = document.querySelectorAll(".enter");
-    console.log(enters);
+    // console.log(enters);
     enters.forEach((enter) => {
+        console.log("addEventListener to enter button");
+        console.log(enter);
         enter.addEventListener("click", async (e) => {
-            const roomNumber = e.target.id;
-            makeCurrentMember(roomNumber, roomData);
-            const roomMain = document.querySelector(".rooms-main");
+            console.log(e.target.id);
+            loginId = getLoginId();
+            serverRoomNumber = e.target.id;
+            makeCurrentMember(serverRoomNumber, roomData);
             roomMain.style.display = "none";
-            const roomDetail = document.querySelector(".rooms-detail");
             roomDetail.style.display = "flex";
             // console.log(e.target.id);
             // socket.connect();
-            socket.emit("join-room", getLoginId(), roomNumber);
+            socket.emit("join-room", loginId, serverRoomNumber);
 
-            sendEnter(getLoginId(), roomNumber);
-
-            // 채팅방 나가기
-            const roomExit = document.querySelector(".exit");
-            const currentMemberName = document.querySelector(".current-membername");
-
-            roomExit.addEventListener("click", async (e) => {
-                socket.emit("leave-room", getLoginId(), roomNumber);
-                roomMain.style.display = "block";
-                roomDetail.style.display = "none";
-                currentMemberName.innerHTML = "";
-            });
+            // sendEnter(getLoginId(), roomNumber);
         });
     });
 }
