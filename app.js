@@ -79,19 +79,27 @@ app.post('/signUp', (req, res) => {
     }
 });
 
+// 유저 목록
+const userData = [
+    { id: '나오미', date: '2023-01-04', friendNum: 13, isFriend: true },
+    { id: '블루문', date: '2023-01-30', friendNum: 1, isFriend: false },
+    { id: '불여우', date: '2023-01-23', friendNum: 4, isFriend: false },
+];
+
+app.get('/api/users/:userId', (req, res) => {
+    console.log(req.params);
+    res.json(userData);
+});
+
+// 친구 요청
+app.get('/api/reqfriends/:userId/:friendId', (req, res) => {
+    console.log(req.params);
+    res.send({ result: 'OK' });
+});
+
 app.get('/api/rooms', (req, res) => {
     res.json(roomData);
 });
-
-// io.on("connection", (socket) => {
-//     socket.on("chatting", (data) => {
-//         const { name, msg } = data;
-//         io.emit("chatting", {
-//             name,
-//             msg,
-//         });
-//     });
-// });
 
 io.on('connection', (socket) => {
     console.log('a user connected : ', socket.id);

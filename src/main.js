@@ -1,6 +1,7 @@
 import { roomEnter } from './js/Rooms.js';
 import { friendsInit } from './js/Freinds.js';
 import { loginInit, signUpInit } from './js/Login.js';
+import { usersInit } from './js/Users.js';
 
 const nav = document.querySelector('.nav');
 const main = document.querySelector('.main');
@@ -35,5 +36,7 @@ nav.addEventListener('click', async (e) => {
         friendsInit();
     } else if (e.target.id === 'Rooms') {
         roomEnter();
+    } else if (e.target.id === 'Users') {
+        usersInit();
     }
 });

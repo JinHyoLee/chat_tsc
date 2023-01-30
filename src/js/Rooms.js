@@ -32,7 +32,7 @@ async function roomPeople() {
 
 // 채팅방 현재인원, 방번호
 function makeCurrentMember(id, roomData) {
-    console.log(roomData);
+    // console.log(roomData);
     const roomNumber = document.querySelector('#room-number');
     const currentMember = document.querySelector('#current-member');
     const currentMemberName = document.querySelector('.current-membername');
@@ -88,10 +88,10 @@ export async function roomEnter() {
     const enters = document.querySelectorAll('.enter');
     // console.log(enters);
     enters.forEach((enter) => {
-        console.log('addEventListener to enter button');
-        console.log(enter);
+        // console.log('addEventListener to enter button');
+        // console.log(enter);
         enter.addEventListener('click', async (e) => {
-            console.log(e.target.id);
+            // console.log(e.target.id);
             loginId = getLoginId();
             serverRoomNumber = e.target.id;
             makeCurrentMember(serverRoomNumber, roomData);
@@ -116,7 +116,7 @@ function send(id, roomNumber) {
         msg: chatInput.value,
     };
 
-    console.log(param.name, param.msg);
+    // console.log(param.name, param.msg);
 
     const item = new LiModel(param.name, param.msg); // LiModel 인스턴스화
     item.makeLi();
@@ -130,7 +130,7 @@ socket.on('chatting', (data) => {
     const chat = document.querySelector('.chat');
 
     const { name, msg } = data;
-    console.log(name, msg);
+    // console.log(name, msg);
     const item = new LiModel(name, msg); // LiModel 인스턴스화
     item.makeLi();
     chat.scrollTo(0, chat.scrollHeight);

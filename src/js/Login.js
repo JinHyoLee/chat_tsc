@@ -3,7 +3,6 @@ let loginId;
 // 로그인
 export function loginInit() {
     const main = document.querySelector('.main');
-    const signUp = document.querySelector('#sign-up');
     const signIn = document.querySelector('#sign-in');
     const header = document.querySelector('.header');
     const id = document.querySelector('#id');
@@ -44,10 +43,8 @@ export function loginInit() {
 }
 
 export function signUpInit() {
-    const main = document.querySelector('.main');
     const signUp = document.querySelector('#sign-up');
     const signIn = document.querySelector('#sign-in');
-    const header = document.querySelector('.header');
     const id = document.querySelector('#id');
     const password = document.querySelector('#password');
 
