@@ -99,11 +99,21 @@ button {
 .rooms-detail {
     display: flex;
     justify-content: space-between;
-    height: 300px;
+    height: 400px;
+}
+.chat {
+    overflow-y: scroll;
 }
 .chat-room {
     width: 70%;
     padding: 20px 0 20px 20px;
+}
+.chatting-list li {
+    /* padding: 0.2rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-end; */
+    margin-top: 0.4rem;
 }
 .chat-member {
     width: 30%;
@@ -118,11 +128,19 @@ button {
     height: 80%;
     border: 3px solid rgb(60, 88, 141);
 }
+.chat-input {
+    font-size: medium;
+}
 .chat-input,
 .exit {
+    padding: 0 20px;
+    width: 100%;
     margin-top: 10px;
     height: 20%;
     border: 3px solid rgb(60, 88, 141);
+}
+.exit {
+    text-align: center;
 }
 
 /* Users_메인 */
