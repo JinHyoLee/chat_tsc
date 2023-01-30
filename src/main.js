@@ -1,6 +1,6 @@
 import { roomEnter } from "./js/Rooms.js";
 import { friendsInit } from "./js/Freinds.js";
-import { loginInit, signUpInit } from "./js/login.js";
+import { loginInit, signUpInit } from "./js/Login.js";
 
 const nav = document.querySelector(".nav");
 const main = document.querySelector(".main");

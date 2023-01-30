@@ -81,13 +81,48 @@ app.get("/api/rooms", (req, res) => {
     ]);
 });
 
+// io.on("connection", (socket) => {
+//     socket.on("chatting", (data) => {
+//         const { name, msg } = data;
+//         io.emit("chatting", {
+//             name,
+//             msg,
+//         });
+//     });
+// });
+
 io.on("connection", (socket) => {
-    socket.on("chatting", (data) => {
-        const { name, msg } = data;
-        io.emit("chatting", {
-            name,
-            msg,
+    console.log("a user connected : ", socket.id);
+    socket.on("chatting", (data, room) => {
+        console.log(`data: ${data.name} ${data.msg},  room: ${room}`);
+        socket.to(room).emit("chatting", data);
+    });
+    socket.on("disconnect", () => {
+        console.log("user disconnected");
+    });
+    socket.on("join-room", (id, room) => {
+        console.log(`${id} join room ${room}`);
+        socket.join(room);
+        socket.to(room).emit("chatting", {
+            name: id,
+            msg: "님이 입장",
         });
+    });
+    socket.on("disconnecting", () => {
+        socket.rooms.forEach((room) =>
+            socket.to(room).emit({
+                name: "unknown",
+                msg: "님의 연결이 해제되었습니다.",
+            })
+        );
+    });
+    socket.on("leave-room", (id, room) => {
+        console.log(`${id} leave rooom ${room}`);
+        socket.to(room).emit("chatting", {
+            name: id,
+            msg: "님이 퇴장",
+        });
+        socket.leave(room);
     });
 });
 

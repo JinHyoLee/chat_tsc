@@ -1,11 +1,13 @@
+import { getLoginId } from "./Login.js";
+
 const socket = io();
 
 // enter눌렀을 때 메세지 보내기
-function sendEnter() {
+function sendEnter(id, roomNumber) {
     const chatInput = document.querySelector(".chat-input");
     chatInput.addEventListener("keypress", (e) => {
         if (e.keyCode === 13) {
-            send();
+            send(id, roomNumber);
         }
     });
 }
@@ -50,8 +52,6 @@ function makeRoom(element) {
 
 // 채팅방 입장
 export async function roomEnter() {
-    const id = document.querySelector("#id");
-    const sendButton = document.querySelector(".send-button");
     const roomsDetail = document.querySelector(".rooms-detail");
 
     roomsDetail.style.display = "none"; // Rooms클릭시 채팅방 안보이기
@@ -63,28 +63,48 @@ export async function roomEnter() {
     console.log(enters);
     enters.forEach((enter) => {
         enter.addEventListener("click", async (e) => {
-            makeCurrentMember(e.target.id, roomData);
+            const roomNumber = e.target.id;
+            makeCurrentMember(roomNumber, roomData);
             const roomMain = document.querySelector(".rooms-main");
             roomMain.style.display = "none";
             const roomDetail = document.querySelector(".rooms-detail");
             roomDetail.style.display = "flex";
             // console.log(e.target.id);
-            sendEnter();
+            // socket.connect();
+            socket.emit("join-room", getLoginId(), roomNumber);
+
+            sendEnter(getLoginId(), roomNumber);
+
+            // 채팅방 나가기
+            const roomExit = document.querySelector(".exit");
+            const currentMemberName = document.querySelector(".current-membername");
+
+            roomExit.addEventListener("click", async (e) => {
+                socket.emit("leave-room", getLoginId(), roomNumber);
+                roomMain.style.display = "block";
+                roomDetail.style.display = "none";
+                currentMemberName.innerHTML = "";
+            });
         });
     });
 }
 
 // message 보내기
-function send() {
+function send(id, roomNumber) {
     const chatInput = document.querySelector(".chat-input");
+    const chat = document.querySelector(".chat");
 
     const param = {
-        // name: id.value,
-        name: "닉네임",
+        name: id,
         msg: chatInput.value,
-        // msg: "입장",
     };
-    socket.emit("chatting", param);
+
+    console.log(param.name, param.msg);
+
+    const item = new LiModel(param.name, param.msg); // LiModel 인스턴스화
+    item.makeLi();
+    chat.scrollTo(0, chat.scrollHeight);
+    socket.emit("chatting", param, roomNumber);
     chatInput.value = "";
 }
 

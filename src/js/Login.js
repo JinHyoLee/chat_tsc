@@ -1,3 +1,5 @@
+let loginId;
+
 // 로그인
 export function loginInit() {
     const main = document.querySelector(".main");
@@ -13,6 +15,7 @@ export function loginInit() {
             id: id.value,
             password: password.value,
         };
+        loginId = id.value;
         fetch(`/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -87,4 +90,8 @@ export function signUpInit() {
             signIn.style.display = "block";
         }
     });
+}
+
+export function getLoginId() {
+    return loginId;
 }
