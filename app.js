@@ -163,8 +163,6 @@ app.get('/api/reqfriends/:userId/:friendId', (req, res) => {
 
 // Friends페이지
 
-let reqFriendsData = [];
-
 // Friends-수신함 친구 요청 목록
 app.get('/api/reqfriends/:userId', (req, res) => {
     let reqFriendsData2 = [];
@@ -199,7 +197,6 @@ app.get('/api/reqfriends/:userId', (req, res) => {
 app.get('/api/acceptfriends/:userId/:friendId', (req, res) => {
     const userId = req.params.userId;
     const reqFriendId = req.params.friendId;
-    reqFriendsData = reqFriendsData.filter((item) => item.id !== reqFriendId);
     // console.log(reqFriendId, userId);
 
     // 친구 요청 삭제 sql
@@ -238,8 +235,6 @@ app.get('/api/rejectfriends/:userId/:friendId', (req, res) => {
     });
 });
 
-let friendsData = [];
-
 // Friends-목록 친구 목록
 app.get('/api/friends/:userId', (req, res) => {
     let friendsData2 = [];
@@ -272,7 +267,6 @@ app.get('/api/friends/:userId', (req, res) => {
 app.get('/api/deleteFriends/:userId/:friendId', (req, res) => {
     const userId = req.params.userId;
     const delFriendId = req.params.friendId;
-    friendsData = friendsData.filter((item) => item.id !== delFriendId);
     // console.log(userId, delFriendId);
 
     // 친구 목록에서 삭제 sql
