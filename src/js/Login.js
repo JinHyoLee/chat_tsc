@@ -8,7 +8,7 @@ export function loginInit() {
     const id = document.querySelector('#id');
     const password = document.querySelector('#password');
 
-    // 로그인 클릭시
+    // Sign In 클릭시
     signIn.addEventListener('click', async (e) => {
         const req = {
             id: id.value,
@@ -42,13 +42,14 @@ export function loginInit() {
     });
 }
 
+// 회원가입
 export function signUpInit() {
     const signUp = document.querySelector('#sign-up');
     const signIn = document.querySelector('#sign-in');
     const id = document.querySelector('#id');
     const password = document.querySelector('#password');
 
-    // 회원가입 클릭시
+    // Sign Up 클릭시
     signUp.addEventListener('click', async (e) => {
         if (signUp.classList.contains('clicked')) {
             const req = {

@@ -20,7 +20,8 @@ const db = mysql.createConnection({
 });
 
 // db 접속
-db.connect();
+// db.connect();
+// db.end();
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'src')));
@@ -39,12 +40,12 @@ let roomData = [
 
 // 로그인
 app.post('/login', (req, res) => {
-    console.log(req.body);
+    // console.log(req.body);
     let id = req.body.id;
     let password = req.body.password;
 
     if (id && password) {
-        db.query('select * from usertable where username = ? and password = ?', [id, password], (error, results, fields) => {
+        db.query('SELECT * FROM usertable WHERE username = ? and password = ?;', [id, password], (err, results) => {
             if (results.length > 0) {
                 res.send({ result: 'OK' });
             } else {
@@ -62,13 +63,13 @@ app.post('/signUp', (req, res) => {
     let password = req.body.password;
 
     if (id && password) {
-        db.query('select * from usertable where username = ? and password = ?', [id, password], (error, results, fields) => {
+        db.query('SELECT * FROM usertable WHERE username = ?;', id, (err, results) => {
             // 이미 있는 아이디
             if (results.length > 0) {
                 res.send({ result: 'Fail' });
             } else {
                 // 없을 시 회원가입 완료
-                db.query('insert into usertable (username, password) values(?, ?);', [id, password], (error, results, fields) => {
+                db.query('INSERT INTO usertable (username, password) VALUES(?, ?);', [id, password], (err, results) => {
                     res.send({ result: 'OK' });
                 });
             }
@@ -87,7 +88,64 @@ const userData = [
 ];
 
 app.get('/api/users/:userId', (req, res) => {
-    console.log(req.params);
+    const userData2 = [];
+    // console.log(req.params);
+    // console.log(req.params.userId);
+
+    // 이름, 생성 날짜
+    db.query('SELECT username, dateCreated FROM usertable WHERE username != ?;', req.params.userId, (err, results) => {
+        results.forEach((item) => {
+            const data = {
+                id: item.username,
+                date: new Date(item.dateCreated).toISOString().substr(0, 10),
+            };
+            userData2.push(data);
+        });
+        // console.log(userData2);
+    });
+
+    // 친구 수 sql
+    const sqlFriendCnt = `SELECT userTable.username, count(friendTable.friendname) AS friendNum
+                          FROM userTable
+                          JOIN friendTable
+                          ON userTable.username = friendTable.username
+                          WHERE usertable.username != ?
+                          GROUP BY userTable.username;`;
+
+    // 친구 수
+    db.query(sqlFriendCnt, req.params.userId, (err, results) => {
+        userData2.forEach((item) => {
+            let isMatch = false;
+            results.forEach((countItem) => {
+                if (item.id === countItem.username) {
+                    item.friendNum = countItem.friendNum;
+                    isMatch = true;
+                }
+            });
+            if (!isMatch) {
+                item.friendNum = 0;
+            }
+        });
+        console.log(userData2);
+    });
+
+    // 친구인지 아닌지
+    db.query('select * from friendtable where username = ?;', req.params.userId, (err, results) => {
+        userData2.forEach((item) => {
+            let isMatch = false;
+            results.forEach((friendItem) => {
+                if (item.id === friendItem.friendname) {
+                    item.isFriend = true;
+                    isMatch = true;
+                }
+            });
+            if (!isMatch) {
+                item.isFriend = false;
+            }
+        });
+        console.log(userData2);
+    });
+
     res.json(userData);
 });
 
@@ -102,9 +160,9 @@ app.get('/api/rooms', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-    console.log('a user connected : ', socket.id);
+    // console.log('a user connected : ', socket.id);
     socket.on('chatting', (data, room) => {
-        console.log(`data: ${data.name} ${data.msg},  room: ${room}`);
+        // console.log(`data: ${data.name} ${data.msg},  room: ${room}`);
         socket.to(room).emit('chatting', data);
     });
 
