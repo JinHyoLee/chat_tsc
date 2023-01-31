@@ -81,12 +81,6 @@ app.post('/signUp', (req, res) => {
 });
 
 // 유저 목록
-const userData = [
-    { id: '나오미', date: '2023-01-04', friendNum: 13, isFriend: true },
-    { id: '블루문', date: '2023-01-30', friendNum: 1, isFriend: false },
-    { id: '불여우', date: '2023-01-23', friendNum: 4, isFriend: false },
-];
-
 app.get('/api/users/:userId', (req, res) => {
     const userData2 = [];
     // console.log(req.params);
@@ -126,7 +120,7 @@ app.get('/api/users/:userId', (req, res) => {
                 item.friendNum = 0;
             }
         });
-        console.log(userData2);
+        // console.log(userData2);
     });
 
     // 친구인지 아닌지
@@ -143,22 +137,32 @@ app.get('/api/users/:userId', (req, res) => {
                 item.isFriend = false;
             }
         });
-        console.log(userData2);
+        // console.log(userData2);
+        res.json(userData2); // 왜 db문에서 나가면 userData2가 초기화되는지 알아야함
     });
 
-    res.json(userData);
+    // console.log(userData2);
 });
 
 // 친구 요청
 app.get('/api/reqfriends/:userId/:friendId', (req, res) => {
-    console.log(req.params);
-    res.send({ result: 'OK' });
+    const friendId = req.params.friendId;
+    const userId = req.params.userId;
+    console.log(friendId);
+    console.log(userId);
+    // // 친구 추가 sql
+    const sqlFriendAdd = 'INSERT INTO friendtable VALUES (?, ?), (?, ?);';
+
+    db.query(sqlFriendAdd, [friendId, userId, userId, friendId], (err, results) => {
+        res.send({ result: 'OK' });
+    });
 });
 
 app.get('/api/rooms', (req, res) => {
     res.json(roomData);
 });
 
+// socket 통신
 io.on('connection', (socket) => {
     // console.log('a user connected : ', socket.id);
     socket.on('chatting', (data, room) => {

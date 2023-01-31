@@ -5,7 +5,7 @@ async function getDataFromServer() {
     const url = `/api/users/${userId}`;
     const data = await fetch(url);
     const userData = await data.json();
-    console.log(userData);
+    // console.log(userData);
 
     const usersElement = document.querySelector('.users');
     userData.forEach((user) => {
