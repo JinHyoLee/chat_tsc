@@ -27,16 +27,22 @@ init();
 // click마다 nav화면전환
 nav.addEventListener('click', async (e) => {
     // console.log(e.target);
-    const data = await fetch(pages[e.target.id]);
+    const clicked = e.target.id;
+    const data = await fetch(pages[clicked]);
     const html = await data.text();
+    const header = document.querySelector('.header');
     // console.log(html);
     main.innerHTML = html;
     // Friends화면 클릭 시
-    if (e.target.id === 'Friends') {
+    if (clicked === 'Friends') {
         friendsInit();
-    } else if (e.target.id === 'Rooms') {
+    } else if (clicked === 'Rooms') {
         roomEnter();
-    } else if (e.target.id === 'Users') {
+    } else if (clicked === 'Users') {
         usersInit();
+    } else if (clicked === 'Logout') {
+        header.style.display = 'none';
+        alert('로그아웃');
+        init();
     }
 });

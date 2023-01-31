@@ -38,6 +38,7 @@ let roomData = [
     },
 ];
 
+// 로그인 페이지
 // 로그인
 app.post('/login', (req, res) => {
     // console.log(req.body);
@@ -80,6 +81,7 @@ app.post('/signUp', (req, res) => {
     }
 });
 
+// Users 페이지
 // 유저 목록
 app.get('/api/users/:userId', (req, res) => {
     const userData2 = [];
@@ -87,7 +89,7 @@ app.get('/api/users/:userId', (req, res) => {
     // console.log(req.params.userId);
 
     // 이름, 생성 날짜
-    db.query('SELECT username, dateCreated FROM usertable WHERE username != ?;', req.params.userId, (err, results) => {
+    db.query('SELECT username, dateCreated FROM userTable WHERE username != ?;', req.params.userId, (err, results) => {
         results.forEach((item) => {
             const data = {
                 id: item.username,
@@ -103,7 +105,7 @@ app.get('/api/users/:userId', (req, res) => {
                           FROM userTable
                           JOIN friendTable
                           ON userTable.username = friendTable.username
-                          WHERE usertable.username != ?
+                          WHERE userTable.username != ?
                           GROUP BY userTable.username;`;
 
     // 친구 수
@@ -124,7 +126,7 @@ app.get('/api/users/:userId', (req, res) => {
     });
 
     // 친구인지 아닌지
-    db.query('select * from friendtable where username = ?;', req.params.userId, (err, results) => {
+    db.query('select * from friendTable where username = ?;', req.params.userId, (err, results) => {
         userData2.forEach((item) => {
             let isMatch = false;
             results.forEach((friendItem) => {
@@ -137,24 +139,154 @@ app.get('/api/users/:userId', (req, res) => {
                 item.isFriend = false;
             }
         });
-        // console.log(userData2);
-        res.json(userData2); // 왜 db문에서 나가면 userData2가 초기화되는지 알아야함
+        console.log(userData2);
+        res.json(userData2);
     });
-
     // console.log(userData2);
 });
 
-// 친구 요청
+// Users 친구 요청
 app.get('/api/reqfriends/:userId/:friendId', (req, res) => {
-    const friendId = req.params.friendId;
     const userId = req.params.userId;
-    console.log(friendId);
-    console.log(userId);
-    // // 친구 추가 sql
-    const sqlFriendAdd = 'INSERT INTO friendtable VALUES (?, ?), (?, ?);';
+    const friendId = req.params.friendId;
+    // console.log(friendId);
+    // console.log(userId);
 
-    db.query(sqlFriendAdd, [friendId, userId, userId, friendId], (err, results) => {
+    // // 친구 요청 추가 sql
+    const sqlFriendReqAdd = 'INSERT INTO friendRequests VALUES (?, ?);';
+
+    db.query(sqlFriendReqAdd, [friendId, userId], (err, results) => {
+        console.log('친구 요청 목록에서  %s에게 요청 추가', friendId);
         res.send({ result: 'OK' });
+    });
+});
+
+// Friends페이지
+
+let reqFriendsData = [];
+
+// Friends-수신함 친구 요청 목록
+app.get('/api/reqfriends/:userId', (req, res) => {
+    let reqFriendsData2 = [];
+
+    // console.log('/api/reqfriends/:userId', req.params);
+    const userId = req.params.userId;
+    // console.log(userId);
+    // 수신함 친구 요청 sql
+    const reqFriendsSql = `SELECT userTable.username, userTable.dateCreated
+                       FROM friendRequests
+                       JOIN userTable
+                       ON friendRequests.friendname = userTable.username
+                       WHERE friendRequests.username = ?;`;
+
+    db.query(reqFriendsSql, userId, (err, results) => {
+        // console.log(results);
+        results.forEach((item) => {
+            const data = {
+                id: item.username,
+                date: new Date(item.dateCreated).toISOString().substr(0, 10),
+            };
+            reqFriendsData2.push(data);
+        });
+        // console.log(reqFriendsData2);
+        res.json(reqFriendsData2);
+    });
+    // res.json(reqFriendsData);
+    // console.log(reqFriendsData);
+});
+
+// Friends-수신함 친구 승낙
+app.get('/api/acceptfriends/:userId/:friendId', (req, res) => {
+    const userId = req.params.userId;
+    const reqFriendId = req.params.friendId;
+    reqFriendsData = reqFriendsData.filter((item) => item.id !== reqFriendId);
+    // console.log(reqFriendId, userId);
+
+    // 친구 요청 삭제 sql
+    const delReqFriend = 'DELETE from friendRequests WHERE username = ? and friendname = ?;';
+
+    // 친구 요청 목록 db에서 삭제
+    db.query(delReqFriend, [userId, reqFriendId], (err, results) => {
+        console.log('친구 요청 목록에서 %s의 요청 삭제', reqFriendId);
+    });
+
+    //  친구 추가 sql
+    const sqlFriendAdd = 'INSERT INTO friendTable VALUES (?, ?), (?, ?);';
+
+    db.query(sqlFriendAdd, [reqFriendId, userId, userId, reqFriendId], (err, results) => {
+        console.log('친구 목록에 %s 추가', reqFriendId);
+        res.send({ result: 'OK' });
+    });
+
+    // res.send({ result: 'OK' });
+});
+
+// Friends-수신함 친구 거절
+app.get('/api/rejectfriends/:userId/:friendId', (req, res) => {
+    // console.log(req.params);
+    const userId = req.params.userId;
+    const reqFriendId = req.params.friendId;
+    reqFriendsData = reqFriendsData.filter((item) => item.id !== reqFriendId);
+
+    // 친구 요청 삭제 sql
+    const delReqFriend = 'DELETE from friendRequests WHERE username = ? and friendname = ?;';
+
+    // 친구 요청 목록 db에서 삭제
+    db.query(delReqFriend, [userId, reqFriendId], (err, results) => {
+        console.log('친구 요청 목록에서 %s의 요청 삭제', reqFriendId);
+        res.send({ result: 'OK' });
+    });
+});
+
+let friendsData = [];
+
+// Friends-목록 친구 목록
+app.get('/api/friends/:userId', (req, res) => {
+    let friendsData2 = [];
+
+    const userId = req.params.userId;
+
+    // Friends-목록 친구 목록
+    const selFriends = `SELECT friendTable.friendname, userTable.dateCreated
+                        FROM friendTable
+                        JOIN userTable
+                        ON friendTable.username = userTable.username
+                        WHERE friendtable.username = ?;`;
+
+    // console.log('/api/friendsData/:userId', req.params);
+    db.query(selFriends, userId, (err, results) => {
+        // console.log(results);
+        results.forEach((item) => {
+            const data = {
+                id: item.friendname,
+                date: new Date(item.dateCreated).toISOString().substr(0, 10),
+            };
+            friendsData2.push(data);
+        });
+        // console.log(friendsData2);
+        res.json(friendsData2);
+    });
+});
+
+// 친구 삭제
+app.get('/api/deleteFriends/:userId/:friendId', (req, res) => {
+    const userId = req.params.userId;
+    const delFriendId = req.params.friendId;
+    friendsData = friendsData.filter((item) => item.id !== delFriendId);
+    // console.log(userId, delFriendId);
+
+    // 친구 목록에서 삭제 sql
+    const delFriend = 'DELETE from friendTable WHERE username = ? and friendname = ?;';
+    const delFriend2 = 'DELETE from friendTable WHERE friendname = ? and username = ?;';
+
+    // 친구 목록 db에서 삭제
+    db.query(delFriend, [userId, delFriendId], (err, results) => {
+        db.query(delFriend2, [userId, delFriendId], (err, results) => {
+            console.log('서로의 친구 목록에서 %s와 %s 삭제', userId, delFriendId);
+            res.send({ result: 'OK' });
+        });
+        // console.log('서로의 친구 목록에서 %s 삭제', delFriendId);
+        // res.send({ result: 'OK' });
     });
 });
 
@@ -177,7 +309,7 @@ io.on('connection', (socket) => {
     // 방 입장
     socket.on('join-room', (id, room) => {
         roomData[room - 1].members.push(id);
-        console.log(`${id} join room ${room}`);
+        // console.log(`${id} join room ${room}`);
         socket.join(room);
         socket.to(room).emit('chatting', {
             name: id,
@@ -200,7 +332,7 @@ io.on('connection', (socket) => {
     socket.on('leave-room', (id, room) => {
         roomData[room - 1].members = roomData[room - 1].members.filter((element) => element !== id);
 
-        console.log(`${id} leave rooom ${room}`);
+        // console.log(`${id} leave rooom ${room}`);
         socket.to(room).emit('chatting', {
             name: id,
             msg: '님이 퇴장',
