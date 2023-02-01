@@ -5,8 +5,10 @@ const path = require('path');
 const server = http.createServer(app);
 const bodyParser = require('body-parser');
 const moment = require('moment');
+
 const socketIO = require('socket.io');
-const socketConnect = (httpServer) => {
+
+const socketConnect = (httpServer: any) => {
     const ioConnect = new socketIO.Server(httpServer, {
         cors: {
             origin: '*',
@@ -14,10 +16,12 @@ const socketConnect = (httpServer) => {
             credentials: true,
         },
     });
+
     const io = ioConnect.of('/socket/chat');
     return io;
 };
 const io = socketConnect(server);
+
 // db 연결
 const mysql = require('mysql');
 const db = mysql.createConnection({
@@ -27,13 +31,19 @@ const db = mysql.createConnection({
     password: 'lhj0811!',
     database: 'chat',
 });
+
 // db 접속
 // db.connect();
 // db.end();
+
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'src')));
 const PORT = process.env.PORT || 5000;
-let roomData = [
+
+let roomData: {
+    members: string[];
+    id: string;
+}[] = [
     {
         members: [],
         id: '1',
@@ -43,58 +53,65 @@ let roomData = [
         id: '2',
     },
 ];
+
 // 로그인 페이지
 // 로그인
-app.post('/login', (req, res) => {
+app.post('/login', (req: { body: { id: any; password: any } }, res: { send: (arg0: { result: string }) => void }) => {
     // console.log(req.body);
     let id = req.body.id;
     let password = req.body.password;
+
     if (id && password) {
-        db.query('SELECT * FROM usertable WHERE username = ? and password = ?;', [id, password], (err, results) => {
+        db.query('SELECT * FROM usertable WHERE username = ? and password = ?;', [id, password], (err: any, results: string | any[]) => {
             if (results.length > 0) {
                 res.send({ result: 'OK' });
-            }
-            else {
+            } else {
                 res.send({ result: 'Fail' });
             }
         });
-    }
-    else {
+    } else {
         res.send({ result: 'None' });
     }
 });
+
 // 회원가입
-app.post('/signUp', (req, res) => {
+app.post('/signUp', (req: { body: { id: any; password: any } }, res: { send: (arg0: { result: string }) => void }) => {
     let id = req.body.id;
     let password = req.body.password;
+
     if (id && password) {
-        db.query('SELECT * FROM usertable WHERE username = ?;', id, (err, results) => {
+        db.query('SELECT * FROM usertable WHERE username = ?;', id, (err: any, results: string | any[]) => {
             // 이미 있는 아이디
             if (results.length > 0) {
                 res.send({ result: 'Fail' });
-            }
-            else {
+            } else {
                 // 없을 시 회원가입 완료
-                db.query('INSERT INTO usertable (username, password) VALUES(?, ?);', [id, password], (err, results) => {
+                db.query('INSERT INTO usertable (username, password) VALUES(?, ?);', [id, password], (err: any, results: any) => {
                     res.send({ result: 'OK' });
                 });
             }
         });
-    }
-    else {
+    } else {
         // 아이디 비밀번호 입력하지 않았을 때
         res.send({ result: 'None' });
     }
 });
+
 // Users 페이지
 // 유저 목록
-app.get('/api/users/:userId', (req, res) => {
-    const userData2 = [];
+app.get('/api/users/:userId', (req: { params: { userId: any } }, res: { json: (arg0: { id: string; date: string; friendNum?: number; isFriend?: boolean }[]) => void }) => {
+    const userData2: {
+        id: string;
+        date: string;
+        friendNum?: number;
+        isFriend?: boolean;
+    }[] = [];
     // console.log(req.params);
     // console.log(req.params.userId);
+
     // 이름, 생성 날짜
-    db.query('SELECT username, dateCreated FROM userTable WHERE username != ?;', req.params.userId, (err, results) => {
-        results.forEach((item) => {
+    db.query('SELECT username, dateCreated FROM userTable WHERE username != ?;', req.params.userId, (err: any, results: { username: any; dateCreated: string | number | Date }[]) => {
+        results.forEach((item: { username: any; dateCreated: string | number | Date }) => {
             const data = {
                 id: item.username,
                 date: new Date(item.dateCreated).toISOString().substr(0, 10),
@@ -103,6 +120,7 @@ app.get('/api/users/:userId', (req, res) => {
         });
         // console.log(userData2);
     });
+
     // 친구 수 sql
     const sqlFriendCnt = `SELECT userTable.username, count(friendTable.friendname) AS friendNum
                           FROM userTable
@@ -110,8 +128,9 @@ app.get('/api/users/:userId', (req, res) => {
                           ON userTable.username = friendTable.username
                           WHERE userTable.username != ?
                           GROUP BY userTable.username;`;
+
     // 친구 수
-    db.query(sqlFriendCnt, req.params.userId, (err, results) => {
+    db.query(sqlFriendCnt, req.params.userId, (err: any, results: any[]) => {
         userData2.forEach((item) => {
             let isMatch = false;
             results.forEach((countItem) => {
@@ -126,8 +145,9 @@ app.get('/api/users/:userId', (req, res) => {
         });
         // console.log(userData2);
     });
+
     // 친구인지 아닌지
-    db.query('select * from friendTable where username = ?;', req.params.userId, (err, results) => {
+    db.query('select * from friendTable where username = ?;', req.params.userId, (err: any, results: any[]) => {
         userData2.forEach((item) => {
             let isMatch = false;
             results.forEach((friendItem) => {
@@ -145,23 +165,31 @@ app.get('/api/users/:userId', (req, res) => {
     });
     // console.log(userData2);
 });
+
 // Users 친구 요청
-app.get('/api/reqfriends/:userId/:friendId', (req, res) => {
+app.get('/api/reqfriends/:userId/:friendId', (req: { params: { userId: any; friendId: any } }, res: { send: (arg0: { result: string }) => void }) => {
     const userId = req.params.userId;
     const friendId = req.params.friendId;
     // console.log(friendId);
     // console.log(userId);
+
     // // 친구 요청 추가 sql
     const sqlFriendReqAdd = 'INSERT INTO friendRequests VALUES (?, ?);';
-    db.query(sqlFriendReqAdd, [friendId, userId], (err, results) => {
+
+    db.query(sqlFriendReqAdd, [friendId, userId], (err: any, results: any) => {
         console.log('친구 요청 목록에서  %s에게 요청 추가', friendId);
         res.send({ result: 'OK' });
     });
 });
+
 // Friends페이지
+
 // Friends-수신함 친구 요청 목록
-app.get('/api/reqfriends/:userId', (req, res) => {
-    const reqFriendsData2 = [];
+app.get('/api/reqfriends/:userId', (req: { params: { userId: any } }, res: { json: (arg0: { id: string; date: string }[]) => void }) => {
+    const reqFriendsData2: {
+        id: string;
+        date: string;
+    }[] = [];
     // console.log('/api/reqfriends/:userId', req.params);
     const userId = req.params.userId;
     // console.log(userId);
@@ -171,7 +199,8 @@ app.get('/api/reqfriends/:userId', (req, res) => {
                        JOIN userTable
                        ON friendRequests.friendname = userTable.username
                        WHERE friendRequests.username = ?;`;
-    db.query(reqFriendsSql, userId, (err, results) => {
+
+    db.query(reqFriendsSql, userId, (err: any, results: any[]) => {
         // console.log(results);
         results.forEach((item) => {
             const data = {
@@ -186,50 +215,66 @@ app.get('/api/reqfriends/:userId', (req, res) => {
     // res.json(reqFriendsData);
     // console.log(reqFriendsData);
 });
+
 // Friends-수신함 친구 승낙
-app.get('/api/acceptfriends/:userId/:friendId', (req, res) => {
+app.get('/api/acceptfriends/:userId/:friendId', (req: { params: { userId: any; friendId: any } }, res: { send: (arg0: { result: string }) => void }) => {
     const userId = req.params.userId;
     const reqFriendId = req.params.friendId;
     // console.log(reqFriendId, userId);
+
     // 친구 요청 삭제 sql
     const delReqFriend = 'DELETE from friendRequests WHERE username = ? and friendname = ?;';
+
     // 친구 요청 목록 db에서 삭제
-    db.query(delReqFriend, [userId, reqFriendId], (err, results) => {
+    db.query(delReqFriend, [userId, reqFriendId], (err: any, results: any) => {
         console.log('친구 요청 목록에서 %s의 요청 삭제', reqFriendId);
     });
+
     //  친구 추가 sql
     const sqlFriendAdd = 'INSERT INTO friendTable VALUES (?, ?), (?, ?);';
-    db.query(sqlFriendAdd, [reqFriendId, userId, userId, reqFriendId], (err, results) => {
+
+    db.query(sqlFriendAdd, [reqFriendId, userId, userId, reqFriendId], (err: any, results: any) => {
         console.log('친구 목록에 %s 추가', reqFriendId);
         res.send({ result: 'OK' });
     });
+
     // res.send({ result: 'OK' });
 });
+
 // Friends-수신함 친구 거절
-app.get('/api/rejectfriends/:userId/:friendId', (req, res) => {
+app.get('/api/rejectfriends/:userId/:friendId', (req: { params: { userId: any; friendId: any } }, res: { send: (arg0: { result: string }) => void }) => {
     // console.log(req.params);
     const userId = req.params.userId;
     const reqFriendId = req.params.friendId;
+
     // 친구 요청 삭제 sql
     const delReqFriend = 'DELETE from friendRequests WHERE username = ? and friendname = ?;';
+
     // 친구 요청 목록 db에서 삭제
-    db.query(delReqFriend, [userId, reqFriendId], (err, results) => {
+    db.query(delReqFriend, [userId, reqFriendId], (err: any, results: any) => {
         console.log('친구 요청 목록에서 %s의 요청 삭제', reqFriendId);
         res.send({ result: 'OK' });
     });
 });
+
 // Friends-목록 친구 목록
-app.get('/api/friends/:userId', (req, res) => {
-    const friendsData2 = [];
+app.get('/api/friends/:userId', (req: { params: { userId: any } }, res: { json: (arg0: { id: string; date: string }[]) => void }) => {
+    const friendsData2: {
+        id: string;
+        date: string;
+    }[] = [];
+
     const userId = req.params.userId;
+
     // Friends-목록 친구 목록
     const selFriends = `SELECT friendTable.friendname, userTable.dateCreated
                         FROM friendTable
                         JOIN userTable
                         ON friendTable.username = userTable.username
                         WHERE friendtable.username = ?;`;
+
     // console.log('/api/friendsData/:userId', req.params);
-    db.query(selFriends, userId, (err, results) => {
+    db.query(selFriends, userId, (err: any, results: any[]) => {
         // console.log(results);
         results.forEach((item) => {
             const data = {
@@ -242,17 +287,20 @@ app.get('/api/friends/:userId', (req, res) => {
         res.json(friendsData2);
     });
 });
+
 // 친구 삭제
-app.get('/api/deleteFriends/:userId/:friendId', (req, res) => {
+app.get('/api/deleteFriends/:userId/:friendId', (req: { params: { userId: any; friendId: any } }, res: { send: (arg0: { result: string }) => void }) => {
     const userId = req.params.userId;
     const delFriendId = req.params.friendId;
     // console.log(userId, delFriendId);
+
     // 친구 목록에서 삭제 sql
     const delFriend = 'DELETE from friendTable WHERE username = ? and friendname = ?;';
     const delFriend2 = 'DELETE from friendTable WHERE friendname = ? and username = ?;';
+
     // 친구 목록 db에서 삭제
-    db.query(delFriend, [userId, delFriendId], (err, results) => {
-        db.query(delFriend2, [userId, delFriendId], (err, results) => {
+    db.query(delFriend, [userId, delFriendId], (err: any, results: any) => {
+        db.query(delFriend2, [userId, delFriendId], (err: any, results: any) => {
             console.log('서로의 친구 목록에서 %s와 %s 삭제', userId, delFriendId);
             res.send({ result: 'OK' });
         });
@@ -260,21 +308,25 @@ app.get('/api/deleteFriends/:userId/:friendId', (req, res) => {
         // res.send({ result: 'OK' });
     });
 });
-app.get('/api/rooms', (req, res) => {
+
+app.get('/api/rooms', (req: any, res: { json: (arg0: { members: string[]; id: string }[]) => void }) => {
     res.json(roomData);
 });
+
 // socket 통신
-io.on('connection', (socket) => {
+io.on('connection', (socket: any) => {
     // console.log('a user connected : ', socket.id);
-    socket.on('chatting', (data, room) => {
+    socket.on('chatting', (data: any, room: any) => {
         // console.log(`data: ${data.name} ${data.msg},  room: ${room}`);
         socket.to(room).emit('chatting', data);
     });
+
     socket.on('disconnect', () => {
         console.log('user disconnected');
     });
+
     // 방 입장
-    socket.on('join-room', (id, room) => {
+    socket.on('join-room', (id: string, room: string) => {
         roomData[Number(room) - 1].members.push(id);
         // console.log(`${id} join room ${room}`);
         socket.join(room);
@@ -282,24 +334,33 @@ io.on('connection', (socket) => {
             name: id,
             msg: '님이 입장',
         });
+
         socket.to(room).emit('newmember-join', room, roomData);
     });
+
     socket.on('disconnecting', () => {
-        socket.rooms.forEach((room) => socket.to(room).emit({
-            name: 'unknown',
-            msg: '님의 연결이 해제되었습니다.',
-        }));
+        socket.rooms.forEach((room: any) =>
+            socket.to(room).emit({
+                name: 'unknown',
+                msg: '님의 연결이 해제되었습니다.',
+            })
+        );
     });
+
     // 방 퇴장
-    socket.on('leave-room', (id, room) => {
+    socket.on('leave-room', (id: string, room: string) => {
         roomData[Number(room) - 1].members = roomData[Number(room) - 1].members.filter((element) => element !== id);
+
         // console.log(`${id} leave rooom ${room}`);
         socket.to(room).emit('chatting', {
             name: id,
             msg: '님이 퇴장',
         });
+
         socket.to(room).emit('newmember-join', room, roomData);
+
         socket.leave(room);
     });
 });
+
 server.listen(PORT, () => console.log(`server is running ${PORT}`));
